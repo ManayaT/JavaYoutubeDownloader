@@ -19,7 +19,7 @@
 | --------------------- | ---------- |
 | Java                | JDK 17     |
 | Jsoup                | 1.16.1      |
-| FFmpeg                | 7.0      |
+| FFmpeg                | 6.0      |
 
 ## ディレクトリ構成
 ```
@@ -81,4 +81,72 @@
         └── annotations
 ```
 
+## 環境構築
+- FFmpegのインストール
+```
+  $ brew install ffmpeg
+```
+- プロジェクトをMavanを使用して立ち上げ，Jsoupをロードする
+```
+<dependencies>
+    <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.16.1</version>
+    </dependency>
+</dependencies>
+```
 
+## 変数設計
+| 変数  | 役割 | 状態 |
+| --------------------- | ---------- | ---------- |
+| inputURL                | 入力URLの保持     | private     |
+| audioURL                | 音声データURLの保持     | private     |
+| videoURL                | 映像データURLの保持     | private     |
+| movieURL                | 音声+映像データURLの保持     | private     |
+| htmlContent                | Jsoupで取得したHTMLの保持     | private     |
+| itagAudioList                | 指定値のitagリストを保持     | private     |
+| itagVideoList                | 指定値のitagリストを保持     | private     |
+| itagMovieList                | 指定値のitagリストを保持     | private     |
+| inputQuality                | 入力画質保持変数     | private     |
+| extension                | 入力拡張子保持変数     | private     |
+| workingPath                | 保存先のパスを保持     | private     |
+| fileName                | 保存時のファイル名を保持     | private     |
+| currentTime                | 一時保存ファイルの仮名用に現在時刻を保持     | private     |
+| contentSize                | プログレスパーの表示用     | private     |
+
+```mermaid
+graph TD;
+  initial(.jarファイルの起動)-->inputURL[任意の動画URLを入力];
+  inputURL-->connectHTML[HTMLの取得];
+
+  connectHTML-->AnalysisURL{取得したHTMLテキストにitagが存在するか};
+  AnalysisURL-->|True| inputExtension[任意の出力用拡張子を入力];
+  AnalysisURL-->|False| inputURL;
+
+  inputExtension-->inputFileLocation[ファイルの保存先を入力];
+
+  inputFileLocation-->existsLocation{保存先が存在しているか};
+  existsLocation-->|True| inputFilename[ファイルの出力名を入力];
+  existsLocation-->|False| inputFileLocation;
+
+  inputFilename-->videoTitle{出力名に禁則文字が含まれていないか};
+  videoTitle-->|True| getDataURL[HTMLに対してスクレイピングの実行];
+  videoTitle-->|False| inputFilename;
+
+  getDataURL-->audioDownload[音声データのダウンロード];
+
+  audioDownload-->download_1{ダウンロードが成功したか};
+  download_1-->|True| videoDownload[動画データのダウンロード];
+  download_1-->|False| deleteFile[不要データの削除];
+
+  videoDownload-->download_2{ダウンロードが成功したか};
+  download_2-->|True| composeData[FFmpegを用いてデータを合成];
+  download_2-->|False| deleteFile[不要データの削除];
+
+  composeData-->deleteFile[不要データの削除];
+
+  deleteFile-->continue{実行を続けるかどうか};
+  continue-->|True| inputURL;
+  continue-->|False| movieEnd(終了);
+```
