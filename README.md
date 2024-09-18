@@ -124,7 +124,9 @@ graph TD;
   AnalysisURL-->|True| inputExtension[任意の出力用拡張子を入力];
   AnalysisURL-->|False| inputURL;
 
-  inputExtension-->inputFileLocation[ファイルの保存先を入力];
+  inputExtension-->whitchExtension{拡張子の種類};
+  whitchExtension-->|.mp4 or .mp3| inputFileLocation[保存先の入力];
+  whitchExtension-->|other| inputExtension;
 
   inputFileLocation-->existsLocation{保存先が存在しているか};
   existsLocation-->|True| inputFilename[ファイルの出力名を入力];
