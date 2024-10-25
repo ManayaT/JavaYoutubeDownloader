@@ -113,7 +113,7 @@
 | workingPath                | 保存先のパスを保持     | private     |
 | fileName                | 保存時のファイル名を保持     | private     |
 | currentTime                | 一時保存ファイルの仮名用に現在時刻を保持     | private     |
-| contentSize                | プログレスパーの表示用     | private     |
+| contentSize                | プログレスバーの表示用     | private     |
 
 ```mermaid
 graph TD;
